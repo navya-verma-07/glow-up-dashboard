@@ -183,8 +183,15 @@ const keys = [
   "design"
 ];
 
-let streak = localStorage.getItem("streak") || 0;
+let streak = parseInt(localStorage.getItem("streak")) || 0;
 let lastDate = localStorage.getItem("lastDate");
+
+// HISTORY STORAGE
+let history = JSON.parse(localStorage.getItem("history")) || {};
+
+function todayKey() {
+  return new Date().toISOString().split("T")[0];
+}
 
 function load() {
   keys.forEach(k => {
@@ -195,66 +202,30 @@ function load() {
 function calcScore() {
   let score = 0;
 
-  // Appearance (40)
   if (skincare.checked) score += 10;
   if (hair.checked) score += 10;
   if (outfit.checked) score += 10;
   if (posture.checked) score += 10;
 
-  // Energy (30)
   if (workout.checked) score += 15;
   if (water.checked) score += 10;
   if (sleep.checked) score += 5;
 
-  // Mindset (20)
   if (focus.checked) score += 10;
   if (mindset.checked) score += 10;
 
-  // Skill (10)
   if (design.checked) score += 10;
 
   return score;
 }
 
-function updateUI() {
-  let score = calcScore();
-  document.getElementById("score").innerText = `Score: ${score} / 100`;
-
-  let badge = "";
-  if (score === 100) badge = "👑 Perfect Glow-Up Day!";
-  else if (score >= 80) badge = "✨ Elite Day";
-  else if (score >= 60) badge = "💅 Good Consistency";
-  else if (score >= 40) badge = "🌱 Building Momentum";
-  else badge = "🫧 Start Small, Stay Consistent";
-
-  document.getElementById("badge").innerText = badge;
-  document.getElementById("streak").innerText = `Streak: ${streak} days`;
+function saveHistory(score) {
+  history[todayKey()] = score;
+  localStorage.setItem("history", JSON.stringify(history));
 }
 
-function save() {
-  keys.forEach(k => {
-    localStorage.setItem(k, document.getElementById(k).checked);
-  });
-
-  localStorage.setItem("streak", streak);
-  localStorage.setItem("lastDate", new Date().toDateString());
-
-  updateUI();
-  alert("Saved ✨");
-  saveHistory(score);
-updateCalendar();
-renderStats();
-}
-
-function resetDay() {
-  keys.forEach(k => {
-    document.getElementById(k).checked = false;
-    localStorage.setItem(k, false);
-  });
-  updateUI();
-  function getStats() {
+function getStats() {
   let scores = Object.values(history);
-
   if (scores.length === 0) return null;
 
   let total = scores.reduce((a,b)=>a+b,0);
@@ -289,27 +260,62 @@ function renderStats() {
     Consistency: ${stats.consistency}% 💚
   `;
 }
+
+function updateUI() {
+  let score = calcScore();
+  document.getElementById("score").innerText = `Score: ${score} / 100`;
+
+  let badge = "";
+  if (score === 100) badge = "👑 Perfect Glow-Up Day!";
+  else if (score >= 80) badge = "✨ Elite Day";
+  else if (score >= 60) badge = "💅 Good Consistency";
+  else if (score >= 40) badge = "🌱 Building Momentum";
+  else badge = "🫧 Start Small, Stay Consistent";
+
+  document.getElementById("badge").innerText = badge;
+  document.getElementById("streak").innerText = `Streak: ${streak} days`;
+
+  saveHistory(score);
+  renderStats();
+}
+
+function save() {
+  keys.forEach(k => {
+    localStorage.setItem(k, document.getElementById(k).checked);
+  });
+
+  localStorage.setItem("streak", streak);
+  localStorage.setItem("lastDate", todayKey());
+
+  updateUI();
+  alert("Saved ✨");
+}
+
+function resetDay() {
+  keys.forEach(k => {
+    document.getElementById(k).checked = false;
+    localStorage.setItem(k, false);
+  });
+
+  updateUI();
 }
 
 function checkStreak() {
-  let today = new Date().toDateString();
+  let today = todayKey();
 
   if (lastDate !== today && lastDate !== null) {
     streak++;
-    localStorage.setItem("streak", streak);
   }
 
+  localStorage.setItem("streak", streak);
   localStorage.setItem("lastDate", today);
 }
 
-keys.forEach(k => {
-  document.addEventListener("change", updateUI);
-});
+document.addEventListener("change", updateUI);
 
 load();
 checkStreak();
 updateUI();
 </script>
-
 </body>
 </html>
