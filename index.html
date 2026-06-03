@@ -156,15 +156,23 @@ button:hover {
   </div>
 </div>
 
-<div class="card">
+ <div class="card">
   <div class="score" id="score">Score: 0 / 100</div>
-  <div class="badge" id="badge">✨ Start your glow-up</div>
-  <div class="small" id="streak">Streak: 0 days</div>
-
-  <button onclick="save()">Save Progress 💾</button>
-  <button onclick="resetDay()">Reset Today 🔄</button>
 </div>
 
+<div class="card">
+  <div class="section-title">📊 Your Stats</div>
+  <div id="statsBox" class="small"></div>
+</div>
+
+<div class="card">
+  <div class="badge" id="badge">✨ Start your glow-up</div>
+  <div class="small" id="streak">Streak: 0 days</div>
+</div>
+
+<div class="card">
+  <button onclick="save()">Save Progress 💾</button>
+  <button onclick="resetDay()">Reset Today 🔄</button>
 </div>
 
 <script>
@@ -233,6 +241,9 @@ function save() {
 
   updateUI();
   alert("Saved ✨");
+  saveHistory(score);
+updateCalendar();
+renderStats();
 }
 
 function resetDay() {
@@ -241,6 +252,43 @@ function resetDay() {
     localStorage.setItem(k, false);
   });
   updateUI();
+  function getStats() {
+  let scores = Object.values(history);
+
+  if (scores.length === 0) return null;
+
+  let total = scores.reduce((a,b)=>a+b,0);
+  let avg = total / scores.length;
+
+  let best = Math.max(...scores);
+  let worst = Math.min(...scores);
+
+  let consistency = (scores.filter(s => s >= 60).length / scores.length) * 100;
+
+  return {
+    avg: avg.toFixed(1),
+    best,
+    worst,
+    consistency: consistency.toFixed(1)
+  };
+}
+
+function renderStats() {
+  let stats = getStats();
+  let box = document.getElementById("statsBox");
+
+  if (!stats) {
+    box.innerHTML = "No data yet—start your glow-up ✨";
+    return;
+  }
+
+  box.innerHTML = `
+    Average Score: ${stats.avg}/100 <br>
+    Best Day: ${stats.best}/100 🔥 <br>
+    Worst Day: ${stats.worst}/100 🫧 <br>
+    Consistency: ${stats.consistency}% 💚
+  `;
+}
 }
 
 function checkStreak() {
