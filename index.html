@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Glow-Up Dashboard ✨</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f7f3ee;
+  color: #222;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.sub {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #222;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+.score {
+  font-size: 20px;
+  text-align: center;
+}
+
+.small {
+  font-size: 13px;
+  color: gray;
+  text-align: center;
+}
+
+.badge {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>✨ Glow-Up Dashboard</h1>
+<p class="sub">your daily soft luxury life tracker 💅</p>
+
+<div class="card">
+  <div class="section-title">🌸 Appearance</div>
+
+  <div class="item">
+    <label>Skincare AM/PM</label>
+    <input type="checkbox" id="skincare">
+  </div>
+
+  <div class="item">
+    <label>Hair done</label>
+    <input type="checkbox" id="hair">
+  </div>
+
+  <div class="item">
+    <label>Intentional outfit</label>
+    <input type="checkbox" id="outfit">
+  </div>
+
+  <div class="item">
+    <label>Posture check</label>
+    <input type="checkbox" id="posture">
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">⚡ Energy (Workout Focus)</div>
+
+  <div class="item">
+    <label>Workout done 🏋️</label>
+    <input type="checkbox" id="workout">
+  </div>
+
+  <div class="item">
+    <label>Water intake 💧</label>
+    <input type="checkbox" id="water">
+  </div>
+
+  <div class="item">
+    <label>Good sleep 🌙</label>
+    <input type="checkbox" id="sleep">
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">🧠 Mindset</div>
+
+  <div class="item">
+    <label>Focus session completed</label>
+    <input type="checkbox" id="focus">
+  </div>
+
+  <div class="item">
+    <label>No negative self-talk day</label>
+    <input type="checkbox" id="mindset">
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">🎨 Skill (Design)</div>
+
+  <div class="item">
+    <label>1 design created</label>
+    <input type="checkbox" id="design">
+  </div>
+</div>
+
+<div class="card">
+  <div class="score" id="score">Score: 0 / 100</div>
+  <div class="badge" id="badge">✨ Start your glow-up</div>
+  <div class="small" id="streak">Streak: 0 days</div>
+
+  <button onclick="save()">Save Progress 💾</button>
+  <button onclick="resetDay()">Reset Today 🔄</button>
+</div>
+
+</div>
+
+<script>
+const keys = [
+  "skincare","hair","outfit","posture",
+  "workout","water","sleep",
+  "focus","mindset",
+  "design"
+];
+
+let streak = localStorage.getItem("streak") || 0;
+let lastDate = localStorage.getItem("lastDate");
+
+function load() {
+  keys.forEach(k => {
+    document.getElementById(k).checked = localStorage.getItem(k) === "true";
+  });
+}
+
+function calcScore() {
+  let score = 0;
+
+  // Appearance (40)
+  if (skincare.checked) score += 10;
+  if (hair.checked) score += 10;
+  if (outfit.checked) score += 10;
+  if (posture.checked) score += 10;
+
+  // Energy (30)
+  if (workout.checked) score += 15;
+  if (water.checked) score += 10;
+  if (sleep.checked) score += 5;
+
+  // Mindset (20)
+  if (focus.checked) score += 10;
+  if (mindset.checked) score += 10;
+
+  // Skill (10)
+  if (design.checked) score += 10;
+
+  return score;
+}
+
+function updateUI() {
+  let score = calcScore();
+  document.getElementById("score").innerText = `Score: ${score} / 100`;
+
+  let badge = "";
+  if (score === 100) badge = "👑 Perfect Glow-Up Day!";
+  else if (score >= 80) badge = "✨ Elite Day";
+  else if (score >= 60) badge = "💅 Good Consistency";
+  else if (score >= 40) badge = "🌱 Building Momentum";
+  else badge = "🫧 Start Small, Stay Consistent";
+
+  document.getElementById("badge").innerText = badge;
+  document.getElementById("streak").innerText = `Streak: ${streak} days`;
+}
+
+function save() {
+  keys.forEach(k => {
+    localStorage.setItem(k, document.getElementById(k).checked);
+  });
+
+  localStorage.setItem("streak", streak);
+  localStorage.setItem("lastDate", new Date().toDateString());
+
+  updateUI();
+  alert("Saved ✨");
+}
+
+function resetDay() {
+  keys.forEach(k => {
+    document.getElementById(k).checked = false;
+    localStorage.setItem(k, false);
+  });
+  updateUI();
+}
+
+function checkStreak() {
+  let today = new Date().toDateString();
+
+  if (lastDate !== today && lastDate !== null) {
+    streak++;
+    localStorage.setItem("streak", streak);
+  }
+
+  localStorage.setItem("lastDate", today);
+}
+
+keys.forEach(k => {
+  document.addEventListener("change", updateUI);
+});
+
+load();
+checkStreak();
+updateUI();
+</script>
+
+</body>
+</html>
